@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>古典文法ー動詞①</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  input[type="text"] {
+    padding: 5px;
+    font-size: 16px;
+  }
+  button {
+    padding: 5px 10px;
+    font-size: 16px;
+    margin: 5px 5px 5px 0;
+    cursor: pointer;
+  }
+  #result {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  .description {
+    background: #f0f8ff;
+    padding: 10px;
+    border-left: 5px solid #007acc;
+    margin-bottom: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="description">
+  <h2>【古典文法】動詞①活用を答える</h2>
+  <ul>
+    <li>「ランダム出題」ボタンを押すと問題が表示されます。</li>
+    <li>答えを入力して <strong>Enterキー</strong> または「答え合わせ」ボタンで判定します。</li>
+    <li>答え合わせ後、もう一度 <strong>Enterキー</strong> を押すと次の問題が出ます。</li>
+    <li>ひらがなで、空白は入れずに、「、」をつけてください。</li>
+    <li>ワ行の「い」「え」は「ゐ」「ゑ」と区別してください。</li>
+    <li>複数回ある場合、短いほう・五十音が早いほうを正解とします。</li>
+    <li>例-「あ、い、う、う、え、え」
+  </ul>
+</div>
+
+<h2 id="question">問題がここに表示されます</h2>
+<input type="text" id="answer" placeholder="答えを入力">
+<button onclick="checkAnswer()">答え合わせ</button>
+<button onclick="showRandomQuestion()">ランダム出題</button>
+
+<p id="result"></p>
+
+<script>
+const quizData = [
+    { question: "カ行四段活用", answer: "か、き、く、く、け、け" },
+    { question: "ガ行四段活用", answer: "が、ぎ、ぐ、ぐ、げ、げ" },
+    { question: "サ行四段活用", answer: "さ、し、す、す、せ、せ" },
+    { question: "タ行四段活用", answer: "た、ち、つ、つ、て、て" },
+    { question: "ハ行四段活用", answer: "は、ひ、ふ、ふ、へ、へ" },
+    { question: "バ行四段活用", answer: "ば、び、ぶ、ぶ、べ、べ" },
+    { question: "マ行四段活用", answer: "ま、み、む、む、め、め" },
+    { question: "ラ行四段活用", answer: "ら、り、る、る、れ、れ" },
+    { question: "ナ行変格活用", answer: "な、に、ぬ、ぬる、ぬれ、ね" },
+    { question: "行四段活用", answer: "ら、り、り、る、れ、れ" },
+    { question: "カ行下一段活用", answer: "け、け、ける、ける、けれ、けよ" },
+    { question: "ア行下二段活用", answer: "え、え、う、うる、うれ、えよ" },
+    { question: "カ行下二段活用", answer: "け、け、く、くる、くれ、けよ" },
+    { question: "サ行下二段活用", answer: "せ、せ、す、する、すれ、せよ" },
+    { question: "タ行下二段活用", answer: "て、て、つ、つる、つれ、てよ" },
+    { question: "ナ行下二段活用", answer: "ね、ね、ぬ、ぬる、ぬれ、ねよ" },
+    { question: "ハ行下二段活用", answer: "へ、へ、ふ、ふる、ふれ、へよ" },
+    { question: "マ行下二段活用", answer: "め、め、む、むる、むれ、めよ" },
+    { question: "ヤ行下二段活用", answer: "え、え、ゆ、ゆる、ゆれ、えよ" },
+    { question: "ラ行下二段活用", answer: "れ、れ、る、るる、るれ、れよ" },
+    { question: "ワ行下二段活用", answer: "ゑ、ゑ、う、うる、うれ、ゑよ" },
+    { question: "カ行上一段活用", answer: "き、き、きる、きる、きれ、きよ" },
+    { question: "ハ行上一段活用", answer: "ひ、ひ、ひる、ひる、ひれ、ひよ" },
+    { question: "マ行上一段活用", answer: "み、み、みる、みる、みれ、みよ" },
+    { question: "ヤ行上一段活用", answer: "い、い、いる、いる、いれ、いよ" },
+    { question: "ワ行上一段活用", answer: "ゐ、ゐ、ゐる、ゐる、ゐれ、ゐよ" },
+    { question: "カ行上二段活用", answer: "き、き、く、くる、くれ、きよ" },
+    { question: "ガ行上二段活用", answer: "ぎ、ぎ、ぐ、ぐる、ぐれ、ぎよ" },
+    { question: "タ行上二段活用", answer: "ち、ち、つ、つる、つれ、ちよ" },
+    { question: "ダ行上二段活用", answer: "ぢ、ぢ、づ、づる、づれ、ぢよ" },
+    { question: "ハ行上二段活用", answer: "ひ、ひ、ふ、ふる、ふれ、ひよ" },
+    { question: "バ行上二段活用", answer: "び、び、ぶ、ぶる、ぶれ、びよ" },
+    { question: "マ行上二段活用", answer: "み、み、む、むる、むれ、みよ" },
+    { question: "ヤ行上二段活用", answer: "い、い、ゆ、ゆる、ゆれ、いよ" },
+    { question: "ラ行上二段活用", answer: "り、り、る、るる、るれ、りよ" },
+    { question: "カ行変格活用", answer: "こ、き、く、くる、くれ、こ" },
+    { question: "サ行変格活用", answer: "せ、し、す、する、すれ、せよ" }
+];
+
+let currentQuestionIndex = null;
+let answered = false;
+
+function showRandomQuestion() {
+    let randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * quizData.length);
+    } while (randomIndex === currentQuestionIndex && quizData.length > 1);
+
+    currentQuestionIndex = randomIndex;
+    document.getElementById("question").textContent = quizData[randomIndex].question;
+    document.getElementById("answer").value = "";
+    document.getElementById("result").textContent = "";
+    answered = false;
+}
+
+function checkAnswer() {
+    if (currentQuestionIndex === null) {
+        document.getElementById("result").textContent = "まずランダム出題ボタンを押してください。";
+        document.getElementById("result").style.color = "orange";
+        return;
+    }
+
+    const userAnswer = document.getElementById("answer").value.trim();
+    const correctAnswer = quizData[currentQuestionIndex].answer;
+    const resultElement = document.getElementById("result");
+
+    if (userAnswer === "") {
+        resultElement.textContent = "答えを入力してください。";
+        resultElement.style.color = "orange";
+        return;
+    }
+
+    if (userAnswer === correctAnswer) {
+        resultElement.textContent = "正解！";
+        resultElement.style.color = "green";
+    } else {
+        resultElement.textContent = `不正解… 正しい答えは ${correctAnswer} です。`;
+        resultElement.style.color = "red";
+    }
+
+    answered = true;
+}
+
+document.getElementById("answer").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        if (!answered) {
+            checkAnswer();
+        } else {
+            showRandomQuestion();
+        }
+    }
+});
+
+window.onload = showRandomQuestion;
+</script>
+
+</body>
+</html>
